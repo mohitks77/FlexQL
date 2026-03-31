@@ -1,6 +1,6 @@
 # FlexQL — Design Document
 
-> **GitHub repository:** `<paste your GitHub link here>`
+> **GitHub repository:** `https://github.com/mohitks77/FlexQL`
 
 ---
 
