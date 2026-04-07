@@ -13,8 +13,8 @@ FlexQL is a client-server SQL-like database written entirely in **C++17**. The s
 │         CLIENT               │  ──── QUERY frame ──────────►  │             SERVER                  │
 │  flexql.h   (public C API)   │  ◄─── RESULT_ROW frames ────   │  Parser → Executor → Storage        │
 │  flexql_client.cpp           │  ◄─── DONE / ERROR frame ───   │  Catalog (all DBs)                  │
-│  repl.cpp   (REPL terminal)  │                                 │  select() multi-client event loop   │
-└──────────────────────────────┘                                 └──────────────────────────────────────┘
+│  repl.cpp   (REPL terminal)  │                                │  select() multi-client event loop   │
+└──────────────────────────────┘                                └──────────────────────────────────────┘
                                                                               │
                                                                     data/<dbname>/<table>.sch
                                                                     data/<dbname>/<table>.dat
