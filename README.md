@@ -347,18 +347,3 @@ After query:   2 rows visible (IDs 1, 3) — row 2 filtered by alive()
 
 ---
 
-## 15. Running the Cache Comparison Benchmark
-
-```bash
-# Start nothing — the script manages its own servers
-python3 scripts/compare_cache.py 100000   # 100k rows
-python3 scripts/compare_cache.py 1000000  # 1M rows (takes longer)
-```
-
-The script automatically:
-
-1. Starts two server instances (ports 9400 and 9401)
-2. Seeds identical data into both using the same random seed
-3. Runs 7 benchmark scenarios
-4. Prints a side-by-side comparison table
-5. Shuts both servers down cleanly
