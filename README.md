@@ -308,6 +308,7 @@ The server supports an optional **LRU (Least-Recently-Used) query result cache**
 **Invalidation:** Generation-counter based. Every table has a `uint64_t` generation counter. On INSERT, UPDATE, DELETE, or DROP, the counter is incremented. A cached entry is considered stale if its stored generation doesn't match the current table generation — it is evicted on first access. No background sweep needed.
 
 **Data structure:** `std::list<pair<key,CacheEntry>>` (front = MRU) + `std::unordered_map<key, list::iterator>` for O(1) lookup and O(1) LRU eviction.
+
 ---
 
 ## 14. Row Expiration
