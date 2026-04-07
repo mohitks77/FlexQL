@@ -263,22 +263,6 @@ g++ -O3 ./scripts/benchmark_flexql.cpp src/client/flexql_client.cpp src/network/
 
 ---
 
-## 11. Performance Results
-
-Run `python3 scripts/benchmark.py 127.0.0.1 9000 1000000` and fill in:
-
-| Metric                   | Result        |
-| ------------------------ | ------------- |
-| INSERT throughput        | \_\_\_ rows/s |
-| SELECT \* (all rows)     | \_\_\_s       |
-| PK point-lookup avg      | \_\_\_ms      |
-| PK point-lookup p99      | \_\_\_ms      |
-| WHERE scan (non-indexed) | \_\_\_s       |
-
-> Fill these in after running the benchmark on your machine.
-
----
-
 ## 12. Project Structure
 
 ```
@@ -324,33 +308,6 @@ The server supports an optional **LRU (Least-Recently-Used) query result cache**
 **Invalidation:** Generation-counter based. Every table has a `uint64_t` generation counter. On INSERT, UPDATE, DELETE, or DROP, the counter is incremented. A cached entry is considered stale if its stored generation doesn't match the current table generation — it is evicted on first access. No background sweep needed.
 
 **Data structure:** `std::list<pair<key,CacheEntry>>` (front = MRU) + `std::unordered_map<key, list::iterator>` for O(1) lookup and O(1) LRU eviction.
-
-### Benchmark Results (20,000 rows)
-
-| Scenario                                | No-Cache | With LRU Cache | Speedup                      |
-| --------------------------------------- | -------- | -------------- | ---------------------------- |
-| Cold SELECT \* (first hit)              | 7.663ms  | 1.407ms        | 5.4× faster                  |
-| Warm SELECT \* (20 repeats avg)         | 11.983ms | 1.397ms        | **8.6× faster**              |
-| PK point-lookup WHERE (20 repeats)      | 0.004ms  | 0.005ms        | ~same (already O(1))         |
-| WHERE scan non-indexed (20 repeats)     | 2.916ms  | 0.488ms        | **6.0× faster**              |
-| Post-INSERT re-scan (cache invalidated) | 2.986ms  | 3.548ms        | −19% (invalidation overhead) |
-| ORDER BY + LIMIT 10 (10 repeats avg)    | 63.894ms | 6.648ms        | **9.6× faster**              |
-| Mixed write+read workload (10 cycles)   | 87.433ms | 41.224ms       | 2.1× faster                  |
-
-### Analysis
-
-**Cache wins:**
-
-- Any repeated read query benefits enormously — 6×–9× speedup on full scans and ORDER BY, because the entire result set is served from memory without re-scanning rows.
-- ORDER BY in particular benefits because sorting is O(N log N) — skipping it on cache hits is a massive win.
-
-**Cache is neutral or slightly worse:**
-
-- **PK point-lookups** are already O(1) via the hash index — the cache adds a small lookup overhead (~0.001ms) that barely matters.
-- **Post-write first re-scan** is slightly slower because the cache correctly invalidates on INSERT, forcing a full re-scan on the next read. This is correct behaviour — stale reads would be worse.
-
-**Recommendation:** Enable `--cache` for read-heavy OLTP workloads (dashboards, reporting). For write-heavy streaming ingest, the cache overhead per write is negligible but the hit rate will be low, so it provides minimal benefit.
-
 ---
 
 ## 14. Row Expiration
